@@ -12,7 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "@supabase/supabase-js": "^2.110.2",
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "cookie-session": "^2.1.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

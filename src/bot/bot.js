@@ -27,7 +27,7 @@ bot.start(async (ctx) => {
   }
 });
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 bot.command('linkadmin', async (ctx) => {
     try {

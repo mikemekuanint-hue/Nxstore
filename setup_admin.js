@@ -1,5 +1,5 @@
 const supabase = require('./src/database/supabase');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 async function setupAdmin() {
     const username = 'admin';
