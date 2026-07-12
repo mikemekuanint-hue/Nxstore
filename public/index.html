@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Store - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 2rem; border-radius: 1rem;
+            width: 100%; max-width: 500px;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .close-btn { cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+        .form-control { width: 100%; padding: 0.5rem; border-radius: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Nexus Store</h2>
+            </div>
+            <nav class="menu">
+                <a href="#" class="menu-item active" data-target="dashboard">Dashboard</a>
+                <a href="#" class="menu-item" data-target="orders">Orders</a>
+                <a href="#" class="menu-item" data-target="users">Users</a>
+                <a href="#" class="menu-item" data-target="products">Products</a>
+                <a href="#" class="menu-item" data-target="settings">Settings</a>
+                <a href="#" class="menu-item" data-target="broadcast">Broadcast</a>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="topbar">
+                <h1 id="page-title">Dashboard Overview</h1>
+                <div class="admin-profile">
+                    <span class="avatar">A</span>
+                    <span id="admin-name">Admin</span>
+                    <button id="logout-btn" class="btn" style="margin-left: 1rem; padding: 0.3rem 0.6rem; font-size: 0.8rem; background-color: var(--danger);">Logout</button>
+                </div>
+            </header>
+
+            <!-- DASHBOARD SECTION -->
+            <div id="page-dashboard" class="page-section active">
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <p class="stat-value" id="stat-users">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pending Orders</h3>
+                        <p class="stat-value" id="stat-pending">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Revenue</h3>
+                        <p class="stat-value" id="stat-revenue">...</p>
+                    </div>
+                </section>
+                <section class="recent-activity">
+                    <h2>Recent Orders</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody id="recent-orders-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ORDERS SECTION -->
+            <div id="page-orders" class="page-section">
+                <section class="recent-activity">
+                    <h2>All Historical Orders</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Date</th><th>Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody id="all-orders-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- USERS SECTION -->
+            <div id="page-users" class="page-section">
+                <section class="recent-activity">
+                    <h2>All Users</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Name</th><th>Username</th><th>Telegram ID</th><th>Balance</th><th>Role</th><th>Action</th></tr></thead>
+                            <tbody id="users-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="users-pagination" style="display:flex; justify-content:center; align-items:center; margin-top:1rem; gap:1rem;">
+                        <button id="prev-users-btn" class="btn" onclick="prevUsersPage()">Previous</button>
+                        <span id="users-page-info" style="color:var(--text-secondary);">Page 1 of 1</span>
+                        <button id="next-users-btn" class="btn" onclick="nextUsersPage()">Next</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- PRODUCTS SECTION -->
+            <div id="page-products" class="page-section">
+                <section class="recent-activity">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h2>Manage Products</h2>
+                        <button class="btn" onclick="openProductModal()">+ Add Product</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Name</th><th>Price</th><th>Stock</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody id="products-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SETTINGS SECTION -->
+            <div id="page-settings" class="page-section">
+                <section class="recent-activity" style="max-width: 800px;">
+                    <h2>Global Settings</h2>
+                    
+                    <div style="margin-top: 2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <h3>Payment Methods (Banks)</h3>
+                            <button class="btn" onclick="addBankRow()">+ Add Bank</button>
+                        </div>
+                        <div id="banks-container">
+                            <!-- Populated via JS -->
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Note: For Auto-Verify via Verify.et, the Account Name here must exactly match (case-insensitive) the Verify.et name.</p>
+                    </div>
+
+                    <form id="settings-form" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <div class="form-group">
+                            <label>Auto-Verify Wallet Deposits (Global)</label>
+                            <select id="set-auto" class="form-control">
+                                <option value="true">True (Verify.et API)</option>
+                                <option value="false">False (Manual Photo Upload)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Bot Maintenance Mode</label>
+                            <select id="set-maint" class="form-control">
+                                <option value="false">False (Bot is Active)</option>
+                                <option value="true">True (Bot is Under Maintenance)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Enable 2FA for Admin Login (OTP via Telegram)</label>
+                            <select id="set-2fa" class="form-control">
+                                <option value="false">False (Disabled)</option>
+                                <option value="true">True (Enabled)</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn" onclick="saveSettings()" style="margin-top: 1rem;">Save All Settings</button>
+                    </form>
+
+                    <div style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h3>Change Admin Password</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Update your dashboard login password.</p>
+                        <form id="password-form" onsubmit="event.preventDefault(); changePassword();">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" id="old-password" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" id="new-password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn" style="background: var(--accent-color);">Update Password</button>
+                        </form>
+                    </div>
+
+                    <div style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h3>Link Telegram Admin</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Link your personal Telegram account to receive order notifications and approve/reject them directly from chat.</p>
+                        <button type="button" class="btn" onclick="generateTelegramCode()" style="background: var(--accent-color);">Generate Link Code</button>
+                        <div id="telegram-link-result" style="margin-top: 1rem; font-family: monospace; display: none; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;"></div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- BROADCAST SECTION -->
+            <div id="page-broadcast" class="page-section">
+                <section class="recent-activity" style="max-width: 600px;">
+                    <h2>Send Broadcast Announcement</h2>
+                    <p style="color:var(--text-secondary); margin-bottom:1rem;">Send a message to all registered users via the Telegram Bot.</p>
+                    <form id="broadcast-form">
+                        <div class="form-group">
+                            <label>Announcement Message</label>
+                            <textarea id="broadcast-msg" class="form-control" rows="5" placeholder="Type your announcement here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn" style="background:var(--accent-color);">Send to All Users</button>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="product-modal-title">Add Product</h2>
+                <span class="close-btn" onclick="closeProductModal()">&times;</span>
+            </div>
+            <form id="product-form">
+                <input type="hidden" id="prod-id">
+                <div class="form-group"><label>Name</label><input type="text" id="prod-name" class="form-control" required></div>
+                <div class="form-group"><label>Description</label><textarea id="prod-desc" class="form-control"></textarea></div>
+                <div class="form-group"><label>Price (ETB)</label><input type="number" id="prod-price" class="form-control" required></div>
+                <div class="form-group"><label>Stock</label><input type="number" id="prod-stock" class="form-control" value="-1" required></div>
+                <div class="form-group"><label>Installation/Usage Guide</label><textarea id="prod-guide" class="form-control" placeholder="Sent to user upon purchase"></textarea></div>
+                <div class="form-group" style="display:flex; align-items:center;">
+                    <input type="checkbox" id="prod-auto" style="margin-right:0.5rem; width:1.2rem; height:1.2rem;">
+                    <label style="margin-bottom:0;">Enable Auto-Verify Payment via Verify.et</label>
+                </div>
+                <button type="button" class="btn" onclick="saveProduct()" style="margin-top:1rem;">Save Product</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="balance-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Adjust Balance</h2>
+                <span class="close-btn" onclick="closeBalanceModal()">&times;</span>
+            </div>
+            <form id="balance-form">
+                <input type="hidden" id="bal-user-id">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Enter amount to add or deduct (use negative for deduction).</p>
+                <div class="form-group"><label>Amount (ETB)</label><input type="number" id="bal-amount" class="form-control" required></div>
+                <button type="button" class="btn" onclick="saveBalance()">Apply Adjustment</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>
