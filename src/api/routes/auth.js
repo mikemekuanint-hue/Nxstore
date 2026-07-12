@@ -39,7 +39,9 @@ router.post('/login', async (req, res) => {
                 
                 // Send via Bot
                 try {
-                    const bot = require('../../bot/bot');
+                    const { Telegraf } = require('telegraf');
+                    const env = require('../../config/env');
+                    const bot = new Telegraf(env.BOT_TOKEN);
                     await bot.telegram.sendMessage(adminChatId, `🔐 *Admin Login OTP*\n\nYour one-time password is: \`${otp}\``, { parse_mode: 'Markdown' });
                 } catch(e) {
                     console.error('Failed to send OTP:', e);
@@ -84,7 +86,7 @@ router.post('/verify-otp', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-    req.session.destroy();
+    req.session = null;
     res.json({ success: true });
 });
 

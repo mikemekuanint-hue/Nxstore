@@ -6,18 +6,17 @@ const logger = require('./utils/logger');
 
 
 const app = express();
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(logger);
 
-app.use(session({
-    secret: 'nexus-super-secret-key', // In production, use env.SESSION_SECRET
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 1 day
+app.use(cookieSession({
+    name: 'session',
+    keys: ['nexus-super-secret-key'], // In production, use env.SESSION_SECRET
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
 }));
 
 // Import Routes
