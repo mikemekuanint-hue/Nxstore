@@ -44,20 +44,15 @@ app.get('/api/status', (req, res) => {
   res.json({ status: 'Nexus Store API is running' });
 });
 
-// Start the Express server
-app.listen(env.PORT, () => {
-  console.log(`Server is running on port ${env.PORT}`);
-  
-  // Telegram bot now runs on Supabase Edge Functions!
-  // We keep the bot instance exported for sending broadcasts via the Admin API.
-  /*
-  bot.launch().then(() => {
-    console.log('Telegram bot started!');
-  }).catch((err) => {
-    console.error('Failed to start bot:', err);
+// Start the Express server only if not running in a serverless environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(env.PORT, () => {
+    console.log(`Server is running on port ${env.PORT}`);
   });
-  */
-});
+}
+
+// Export the app for Vercel serverless functions
+module.exports = app;
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
