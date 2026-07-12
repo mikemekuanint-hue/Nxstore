@@ -233,8 +233,11 @@ router.post('/broadcast', async (req, res) => {
         const { data: users, error } = await supabase.from('users').select('telegram_id');
         if (error) throw error;
         
+        const { Telegraf } = require('telegraf');
+        const env = require('../../config/env');
+        const bot = new Telegraf(env.BOT_TOKEN);
+        
         let count = 0;
-        const bot = require('../../bot/bot');
         for (const user of users) {
             try {
                 await bot.telegram.sendMessage(user.telegram_id, `📣 *Announcement*\n\n${message}`, { parse_mode: 'Markdown' });

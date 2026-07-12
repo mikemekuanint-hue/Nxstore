@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const env = require('./config/env');
 const logger = require('./utils/logger');
-const bot = require('./bot/bot');
+
 
 const app = express();
 const session = require('express-session');
@@ -54,6 +54,4 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
 // Export the app for Vercel serverless functions
 module.exports = app;
 
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
